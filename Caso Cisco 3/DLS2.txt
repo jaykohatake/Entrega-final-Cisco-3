@@ -1,0 +1,60 @@
+enable
+configure terminal
+hostname DLS2
+enable secret cisco
+banner motd # DLS2 no ingresar sin autorizacion. #
+line console 0
+password cisco
+login
+exit
+line vty 0 15
+password cisco
+login 
+exit
+service password-encryption
+ip default-gateway 172.16.7.138
+vlan 10
+vlan 20
+vlan 30
+vlan 100
+vlan 200
+vlan 300
+exit
+interface VLAN 300
+description vlan administracion
+ip address 172.16.7.189 255.255.255.192
+no shutdown
+exit
+interface fa0/2
+description conexion a R2
+switchport mode trunk
+no shutdown
+exit
+interface fa0/9
+description conexion a ALS2
+switchport mode trunk
+no shutdown
+exit
+interface range g0/1-2 
+description conexion a DLS1
+switchport mode trunk
+channel-group 1 mode active
+no shutdown
+exit
+interface range fa0/23-24 
+description conexion a ALS1
+switchport mode trunk
+channel-group 2 mode desirable
+no shutdown
+exit
+interface port-channel 1
+description conexion DLS1
+switchport mode trunk
+no shutdown
+exit
+interface port-channel 2
+description conexion ALS1
+switchport mode trunk
+no shutdown
+exit
+spanning-tree mode rapid-pvst

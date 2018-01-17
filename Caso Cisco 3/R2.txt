@@ -1,0 +1,149 @@
+enable
+configure terminal
+hostname R2
+enable secret cisco
+banner motd # R2 no ingresar sin autorizacion. #
+line console 0
+password cisco
+login
+exit
+line vty 0 15
+password cisco
+login 
+exit
+service password-encryption
+ipv6 unicast-routing 
+interface serial 0/0/0
+description conexion a R4
+ip address 192.168.123.9 255.255.255.252
+ipv6 address 2000:123:0:0:3::1/80
+no shutdown
+exit
+interface fastEthernet 0/1
+description conexion a R4
+ip address 192.168.123.1 255.255.255.248
+ipv6 address 2000:123:0:0:4::1/80
+no shutdown
+exit
+interface fastEthernet 0/0
+description conexion a DLS2
+no shutdown
+exit
+interface fastEthernet 0/0.10
+description vlan 10
+encapsulation dot1Q 10
+ip address 172.16.4.2 255.255.254.0
+ipv6 address 2000:172:0:0:1::2/80
+no shutdown
+standby 10 ip 172.16.4.10
+standby 10 priority 105
+standby 10 preempt
+exit
+interface fastEthernet 0/0.20
+description vlan 20
+encapsulation dot1Q 20
+ip address 172.16.6.2 255.255.255.128
+ipv6 address 2000:172:0:0:2::2/80
+no shutdown
+standby 20 ip 172.16.6.10
+standby 20 priority 105
+standby 20 preempt
+exit
+interface fastEthernet 0/0.30
+description vlan 30
+encapsulation dot1Q 30
+ip address 172.16.6.130 255.255.255.128
+ipv6 address 2000:172:0:0:3::2/80
+no shutdown
+standby 30 ip 172.16.6.138
+standby 30 priority 105
+standby 30 preempt
+exit
+interface fastEthernet 0/0.100
+description vlan 100
+encapsulation dot1Q 100
+ip address 172.16.0.2 255.255.252.0
+ipv6 address 2000:172:0:0:4::2/80
+no shutdown
+standby 100 ip 172.16.0.10
+standby 100 preempt
+exit
+interface fastEthernet 0/0.200
+description vlan 200
+encapsulation dot1Q 200
+ip address 172.16.7.2 255.255.255.128
+ipv6 address 2000:172:0:0:5::2/80
+no shutdown
+standby 200 ip 172.16.7.10
+standby 200 preempt
+exit
+interface fastEthernet 0/0.300
+description vlan 300
+encapsulation dot1Q 300
+ip address 172.16.7.130 255.255.255.192
+ipv6 address 2000:172:0:0:6::2/80
+no shutdown
+standby 230 ip 172.16.7.138
+standby 230 preempt
+exit
+interface loopback 0
+description loopback 0
+ip address 10.100.6.1 255.255.255.0
+ipv6 address 3000:10:0:0:4::1/80
+no shutdown
+exit
+interface loopback 1
+description loopback 1
+ip address 10.100.7.1 255.255.255.0
+ipv6 address 3000:10:0:0:5::1/80
+no shutdown
+exit
+interface loopback 2
+description loopback 2
+ip address 10.100.8.1 255.255.255.0
+ipv6 address 3000:10:0:0:6::1/80
+no shutdown
+exit
+router ospf 500
+network 10.100.6.0 0.0.0.255 area 1
+network 10.100.7.0 0.0.0.255 area 1
+network 10.100.8.0 0.0.0.255 area 1
+network 172.16.4.0 0.0.0.255 area 0
+network 172.16.6.0 0.0.0.127 area 0
+network 172.16.6.128 0.0.0.127 area 0
+network 192.168.123.0 0.0.0.7 area 0
+network 192.168.123.8 0.0.0.3 area 0
+passive-interface fa0/0
+passive-interface fa0/0.10
+passive-interface fa0/0.20
+passive-interface fa0/0.30
+passive-interface fa0/0.100
+passive-interface fa0/0.200
+passive-interface fa0/0.300
+exit
+ipv6 router ospf 500
+passive-interface fa0/0
+passive-interface fa0/0.10
+passive-interface fa0/0.20
+passive-interface fa0/0.30
+passive-interface fa0/0.100
+passive-interface fa0/0.200
+passive-interface fa0/0.300
+exit
+int f0/0.10
+ipv6 ospf 500 area 0
+int f0/0.20
+ipv6 ospf 500 area 0
+int f0/0.30
+ipv6 ospf 500 area 0
+int loopback 0
+ipv6 ospf 500 area 1
+int loopback 1
+ipv6 ospf 500 area 1
+int loopback 2  
+ipv6 ospf 500 area 1
+int f0/1
+ipv6 ospf 500 area 0
+int s0/0/0
+ipv6 ospf 500 area 0
+exit

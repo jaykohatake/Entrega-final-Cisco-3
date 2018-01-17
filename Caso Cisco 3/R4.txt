@@ -1,0 +1,107 @@
+enable
+configure terminal
+hostname R4
+enable secret cisco
+banner motd # R4 no ingresar sin autorizacion. #
+line console 0
+password cisco
+login
+exit
+line vty 0 15
+password cisco
+login 
+exit
+service password-encryption
+ipv6 unicast-routing 
+interface serial 0/0/0
+description conexion a R2
+ip address 192.168.123.10 255.255.255.252
+ipv6 address 2000:123:0:0:3::2/80
+clock rate 64000
+no shutdown
+exit
+interface serial 0/0/1
+description conexion a R3
+ip address 192.168.123.18 255.255.255.252
+ipv6 address 2000:123:0:0:2::2/80
+no shutdown
+exit
+interface fastEthernet 0/1
+description conexion a R2
+ip address 192.168.123.2 255.255.255.248
+ipv6 address 2000:123:0:0:4::2/80
+no shutdown
+exit
+interface loopback 0
+description loopback 0
+ip address 10.100.9.1 255.255.255.0
+ipv6 address 3000:10:0:0:A::1/80
+no shutdown
+exit
+interface loopback 1
+description loopback 1
+ip address 10.100.10.1 255.255.255.0
+ipv6 address 3000:10:0:0:B::1/80
+no shutdown
+exit
+interface loopback 2
+description loopback 2
+ip address 10.100.11.1 255.255.255.0
+ipv6 address 3000:10:0:0:C::1/80
+no shutdown
+exit
+router ospf 500
+network 10.100.9.0 0.0.0.255 area 51
+network 10.100.10.0 0.0.0.255 area 51
+network 10.100.11.0 0.0.0.255 area 51
+network 192.168.123.8 0.0.0.3 area 0
+network 192.168.123.0 0.0.0.7 area 0
+exit
+ipv6 router ospf 500
+exit
+int loopback 0
+ipv6 ospf 500 area 51
+int loopback 1
+ipv6 ospf 500 area 51
+int loopback 2
+ipv6 ospf 500 area 51
+int s0/0/0
+ipv6 ospf 500 area 0
+int f0/1
+ipv6 ospf 500 area 0
+exit
+router eigrp 65000
+network 192.168.123.12 0.0.0.3
+network 192.168.123.16 0.0.0.3
+network 10.100.12.0 0.0.0.127
+network 10.100.12.129 0.0.0.127
+network 10.100.13.0 0.0.0.127
+no auto-summary
+exit
+ipv6 router eigrp 65000
+no shutdown
+exit
+int loopback 0
+ipv6 eigrp 65000
+int loopback 1
+ipv6 eigrp 65000
+int loopback 2  
+ipv6 eigrp 65000
+int f0/1
+ipv6 eigrp 65000
+int s0/0/1
+ipv6 eigrp 65000
+exit
+router eigrp 65000
+redistribute ospf 500 metric 1544 4010 255 1 1500
+exit
+ipv6 router eigrp 65000
+redistribute ospf 500 metric 1544 4010 255 1 1500
+exit
+router ospf 500
+redistribute eigrp 65000 subnets
+exit
+ipv6 router ospf 500
+redistribute eigrp 65000 metric-type 2
+exit
+

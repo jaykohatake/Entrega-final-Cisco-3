@@ -1,0 +1,74 @@
+enable
+configure terminal
+hostname R3
+enable secret cisco
+banner motd # R3 no ingresar sin autorizacion. #
+line console 0
+password cisco
+login
+exit
+line vty 0 15
+password cisco
+login
+exit
+service password-encryption
+ipv6 unicast-routing 
+interface serial 0/0/0
+description conexion a R1
+ip address 192.168.123.14 255.255.255.252
+ipv6 address 2000:123:0:0:1::2/80
+clock rate 64000
+no shutdown
+exit
+interface serial 0/0/1
+description conexion a R4
+ip address 192.168.123.17 255.255.255.252
+ipv6 address 2000:123:0:0:2::1/80
+clock rate 64000
+no shutdown
+exit
+interface loopback 0
+description loopback 0
+ip address 10.100.12.1 255.255.255.128
+ipv6 address 3000:10:0:0:7::1/80
+no shutdown
+exit
+interface loopback 1
+description loopback 1
+ip address 10.100.12.129 255.255.255.128
+ipv6 address 3000:10:0:0:8::1/80
+no shutdown
+exit
+interface loopback 2
+description loopback 2
+ip address 10.100.13.1 255.255.255.128
+ipv6 address 3000:10:0:0:9::1/80
+no shutdown
+exit
+router eigrp 65000
+network 192.168.123.12 0.0.0.3
+network 192.168.123.16 0.0.0.3
+network 10.100.12.0 0.0.0.127
+network 10.100.12.129 0.0.0.127
+network 10.100.13.0 0.0.0.127
+no auto-summary
+exit
+ipv6 router eigrp 65000
+no shutdown
+exit
+int loopback 0
+ipv6 eigrp 65000
+int loopback 1
+ipv6 eigrp 65000
+int loopback 2  
+ipv6 eigrp 65000
+int s0/0/1
+ipv6 eigrp 65000
+int s0/0/0
+ipv6 eigrp 65000
+exit
+ip route 10.100.0.0 255.255.0.0 s0/0/1 200
+ip route 172.16.0.0 255.255.0.0 s0/0/1 200
+ip route 192.168.123.0 255.255.255.0 s0/0/1 200
+ipv6 route 2000:172::/64 s0/0/1 200
+ipv6 route 3000:10::/64 s0/0/1 200
